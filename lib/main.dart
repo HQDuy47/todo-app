@@ -1,26 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'providers/todo_provider.dart';
-import 'screens/todo_screen.dart';
+import 'package:flutter/services.dart';
+import 'package:todo_app/screens/home.dart';
 
 void main() {
-  runApp(
-    ChangeNotifierProvider(
-      create: (context) => TodoProvider(),
-      child: MyApp(),
-    ),
-  );
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
+    );
     return MaterialApp(
-      title: 'TODO App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: TodoScreen(),
+      debugShowCheckedModeBanner: false,
+      title: 'ToDo App',
+      home: Home(),
     );
   }
 }
