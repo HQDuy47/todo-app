@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:todo_app/constants/colors.dart';
 import 'package:todo_app/models/todo.dart';
+import 'package:intl/intl.dart';
 
 class ToDoItem extends StatelessWidget {
   final ToDo todo;
@@ -32,13 +33,25 @@ class ToDoItem extends StatelessWidget {
           todo.isDone ? Icons.check_box : Icons.check_box_outline_blank,
           color: tdBlue,
         ),
-        title: Text(
-          todo.todoText!,
-          style: TextStyle(
-            fontSize: 16,
-            color: tdBlack,
-            decoration: todo.isDone ? TextDecoration.lineThrough : null,
-          ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              todo.todoText!,
+              style: TextStyle(
+                fontSize: 16,
+                color: tdBlack,
+                decoration: todo.isDone ? TextDecoration.lineThrough : null,
+              ),
+            ),
+            Text(
+              DateFormat('yyyy-MM-dd HH:mm').format(todo.dateTime!),
+              style: const TextStyle(
+                fontSize: 13,
+                color: tdBlack,
+              ),
+            ),
+          ],
         ),
         trailing: Container(
             padding: const EdgeInsets.all(0),

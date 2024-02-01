@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:todo_app/constants/colors.dart';
 import 'package:todo_app/models/todo.dart';
 import 'package:todo_app/widgets/todo_item.dart';
+import 'package:intl/intl.dart';
 
 class Home extends StatefulWidget {
-  Home({Key? key}) : super(key: key);
+  const Home({Key? key}) : super(key: key);
 
   @override
   State<Home> createState() => _HomeState();
@@ -61,39 +62,41 @@ class _HomeState extends State<Home> {
           Align(
             alignment: Alignment.bottomCenter,
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.only(
-                      bottom: 20,
-                      right: 20,
-                      left: 20,
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.grey,
-                          offset: Offset(0.0, 0.0),
-                          blurRadius: 10.0,
-                          spreadRadius: 0.0,
-                        ),
-                      ],
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: TextField(
-                      controller: _todoController,
-                      decoration: const InputDecoration(
-                        hintText: "Add new todo item",
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ),
-                ),
+                // Expanded(
+                //   child: Container(
+                //     margin: const EdgeInsets.only(
+                //       bottom: 20,
+                //       right: 20,
+                //       left: 20,
+                //     ),
+                //     padding: const EdgeInsets.symmetric(
+                //       horizontal: 20,
+                //       vertical: 5,
+                //     ),
+                //     decoration: BoxDecoration(
+                //       color: Colors.white,
+                //       boxShadow: const [
+                //         BoxShadow(
+                //           color: Colors.grey,
+                //           offset: Offset(0.0, 0.0),
+                //           blurRadius: 10.0,
+                //           spreadRadius: 0.0,
+                //         ),
+                //       ],
+                //       borderRadius: BorderRadius.circular(10),
+                //     ),
+                //     child: TextField(
+                //       controller: _todoController,
+                //       decoration: const InputDecoration(
+                //         hintText: "Add new todo item",
+                //         border: InputBorder.none,
+                //       ),
+                //     ),
+                //   ),
+                // ),
+
                 Container(
                   margin: const EdgeInsets.only(
                     bottom: 20,
@@ -101,7 +104,8 @@ class _HomeState extends State<Home> {
                   ),
                   child: ElevatedButton(
                     onPressed: () {
-                      _addToDoItem(_todoController.text);
+                      // _addToDoItem(_todoController.text);
+                      _showAddTodoModal();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: tdBlue,
@@ -138,17 +142,17 @@ class _HomeState extends State<Home> {
   }
 
   void _addToDoItem(String toDo) {
-    setState(
-      () {
-        todoList.add(
-          ToDo(
-            id: DateTime.now().microsecondsSinceEpoch.toString(),
-            todoText: toDo,
-          ),
-        );
-      },
-    );
-    _todoController.clear();
+    // setState(
+    //   () {
+    //     todoList.add(
+    //       ToDo(
+    //         id: DateTime.now().microsecondsSinceEpoch.toString(),
+    //         todoText: toDo,
+    //       ),
+    //     );
+    //   },
+    // );
+    // _todoController.clear();
   }
 
   void _runFilter(String enteredKeyword) {
@@ -166,6 +170,131 @@ class _HomeState extends State<Home> {
     setState(() {
       _foundToDo = results;
     });
+  }
+
+  void _showAddTodoModal() async {
+    DateTime? selectedDate = DateTime.now();
+    TimeOfDay? selectedTime = TimeOfDay.now();
+
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          height: MediaQuery.of(context).size.height *
+              0.6, // Increased height to accommodate date and time pickers
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              const Text(
+                "Add Todo",
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: _todoController,
+                decoration: const InputDecoration(
+                  hintText: "Enter your ToDo",
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  // Date Picker
+                  ElevatedButton(
+                    onPressed: () async {
+                      DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime(2101),
+                      );
+
+                      if (pickedDate != null && pickedDate != selectedDate) {
+                        setState(() {
+                          selectedDate = pickedDate;
+                        });
+                      }
+                    },
+                    child: Row(
+                      children: [
+                        const Icon(Icons.calendar_month),
+                        const SizedBox(width: 8),
+                        // Check if selectedDate is not null before using it
+                        Text(
+                          selectedDate != null
+                              ? DateFormat('yyyy-MM-dd').format(selectedDate!)
+                              : "Pick Date",
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(width: 8),
+
+                  // Time Picker
+                  ElevatedButton(
+                    onPressed: () async {
+                      TimeOfDay? pickedTime = await showTimePicker(
+                        context: context,
+                        initialTime: TimeOfDay.now(),
+                      );
+
+                      if (pickedTime != null && pickedTime != selectedTime) {
+                        setState(() {
+                          selectedTime = pickedTime;
+                        });
+                      }
+                    },
+                    child: const Row(
+                      children: [
+                        Icon(Icons.access_alarm),
+                        SizedBox(
+                            width:
+                                8), // Add some spacing between the icon and text
+                        Text("Pick Time"),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 40),
+              ElevatedButton(
+                onPressed: () {
+                  // Access selectedDate and selectedTime for your logic
+                  // selectedDate is a DateTime and selectedTime is a TimeOfDay
+                  // Combine them to get the complete date and time.
+
+                  // Example:
+                  // DateTime selectedDateTime = DateTime(
+                  //   selectedDate.year,
+                  //   selectedDate.month,
+                  //   selectedDate.day,
+                  //   selectedTime.hour,
+                  //   selectedTime.minute,
+                  // );
+
+                  // Add your logic to handle the addition of ToDo
+                  // _addToDoItem(_todoController.text, selectedDateTime);
+
+                  // Close the modal
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: tdBlue,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(60, 60),
+                  elevation: 10,
+                ),
+                child: const Text("Add ToDo"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Widget searchBox() {
