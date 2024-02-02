@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:todo_app/constants/colors.dart';
 import 'package:todo_app/models/todo.dart';
 import 'package:todo_app/widgets/todo_item.dart';
+import 'package:todo_app/widgets/todo_date.dart';
+import 'package:todo_app/widgets/todo_time.dart';
 import 'package:intl/intl.dart';
 
 class Home extends StatefulWidget {
@@ -202,62 +204,46 @@ class _HomeState extends State<Home> {
               const SizedBox(height: 16),
               Row(
                 children: [
-                  // Date Picker
-                  ElevatedButton(
-                    onPressed: () async {
-                      DateTime? pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: DateTime.now(),
-                        firstDate: DateTime.now(),
-                        lastDate: DateTime(2101),
-                      );
-
-                      if (pickedDate != null && pickedDate != selectedDate) {
-                        setState(() {
-                          selectedDate = pickedDate;
-                        });
-                      }
+                  MyDate(
+                    onDateSelected: (date) {
+                      setState(() {
+                        selectedDate = date;
+                      });
+                      print(selectedDate);
                     },
-                    child: Row(
-                      children: [
-                        const Icon(Icons.calendar_month),
-                        const SizedBox(width: 8),
-                        // Check if selectedDate is not null before using it
-                        Text(
-                          selectedDate != null
-                              ? DateFormat('yyyy-MM-dd').format(selectedDate!)
-                              : "Pick Date",
-                        ),
-                      ],
-                    ),
                   ),
-
                   const SizedBox(width: 8),
-
-                  // Time Picker
-                  ElevatedButton(
-                    onPressed: () async {
-                      TimeOfDay? pickedTime = await showTimePicker(
-                        context: context,
-                        initialTime: TimeOfDay.now(),
-                      );
-
-                      if (pickedTime != null && pickedTime != selectedTime) {
-                        setState(() {
-                          selectedTime = pickedTime;
-                        });
-                      }
+                  MyTime(
+                    onTimeSelected: (pickedTime) {
+                      // Handle the selected time here
+                      print("Selected Time: ${pickedTime.format(context)}");
                     },
-                    child: const Row(
-                      children: [
-                        Icon(Icons.access_alarm),
-                        SizedBox(
-                            width:
-                                8), // Add some spacing between the icon and text
-                        Text("Pick Time"),
-                      ],
-                    ),
                   ),
+                  // MyTime(),
+                  // Time Picker
+                  // ElevatedButton(
+                  //   onPressed: () async {
+                  //     TimeOfDay? pickedTime = await showTimePicker(
+                  //       context: context,
+                  //       initialTime: TimeOfDay.now(),
+                  //     );
+
+                  //     if (pickedTime != null && pickedTime != selectedTime) {
+                  //       setState(() {
+                  //         selectedTime = pickedTime;
+                  //       });
+                  //     }
+                  //   },
+                  //   child: const Row(
+                  //     children: [
+                  //       Icon(Icons.access_alarm),
+                  //       SizedBox(
+                  //           width:
+                  //               8), // Add some spacing between the icon and text
+                  //       Text("Pick Time"),
+                  //     ],
+                  //   ),
+                  // ),
                 ],
               ),
               const SizedBox(height: 40),
