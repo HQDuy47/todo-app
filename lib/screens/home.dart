@@ -1,12 +1,12 @@
 // ignore_for_file: avoid_unnecessary_containers
-
 import 'package:flutter/material.dart';
 import 'package:todo_app/constants/colors.dart';
 import 'package:todo_app/models/todo.dart';
 import 'package:todo_app/widgets/todo_item.dart';
 import 'package:todo_app/widgets/todo_date.dart';
+import 'package:todo_app/widgets/todo_search.dart';
 import 'package:todo_app/widgets/todo_time.dart';
-import 'package:intl/intl.dart';
+import 'package:todo_app/widgets/todo_appBar.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -19,6 +19,11 @@ class _HomeState extends State<Home> {
   final todoList = ToDo.todoList();
   List<ToDo> _foundToDo = [];
   final _todoController = TextEditingController();
+
+  DateTime? selectedDate;
+  TimeOfDay? selectedTime;
+
+  int myIndex = 0;
 
   @override
   void initState() {
@@ -36,26 +41,20 @@ class _HomeState extends State<Home> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
             child: Column(children: [
-              searchBox(),
+              SearchBox(onSearchChanged: _runFilter),
               Expanded(
                 child: ListView(
                   children: [
-                    Container(
-                      margin: const EdgeInsets.only(top: 50, bottom: 20),
-                      child: const Text(
-                        'All Todos',
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                    for (ToDo todo in _foundToDo.reversed)
-                      ToDoItem(
-                        todo: todo,
-                        onToDoChanged: _handleToDoChange,
-                        onDeleteItem: _deleteToDoItem,
-                      ),
+                    if (myIndex != 2 || myIndex == 0)
+                      ..._buildTaskColumn(
+                          'Today',
+                          (todo) => isToday(todo.dateTime!),
+                          'No task for today'),
+                    if (myIndex != 1 || myIndex == 0)
+                      ..._buildTaskColumn(
+                          'Upcoming',
+                          (todo) => isUpcoming(todo.dateTime!),
+                          'No upcoming tasks'),
                   ],
                 ),
               )
@@ -66,39 +65,6 @@ class _HomeState extends State<Home> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                // Expanded(
-                //   child: Container(
-                //     margin: const EdgeInsets.only(
-                //       bottom: 20,
-                //       right: 20,
-                //       left: 20,
-                //     ),
-                //     padding: const EdgeInsets.symmetric(
-                //       horizontal: 20,
-                //       vertical: 5,
-                //     ),
-                //     decoration: BoxDecoration(
-                //       color: Colors.white,
-                //       boxShadow: const [
-                //         BoxShadow(
-                //           color: Colors.grey,
-                //           offset: Offset(0.0, 0.0),
-                //           blurRadius: 10.0,
-                //           spreadRadius: 0.0,
-                //         ),
-                //       ],
-                //       borderRadius: BorderRadius.circular(10),
-                //     ),
-                //     child: TextField(
-                //       controller: _todoController,
-                //       decoration: const InputDecoration(
-                //         hintText: "Add new todo item",
-                //         border: InputBorder.none,
-                //       ),
-                //     ),
-                //   ),
-                // ),
-
                 Container(
                   margin: const EdgeInsets.only(
                     bottom: 20,
@@ -106,7 +72,6 @@ class _HomeState extends State<Home> {
                   ),
                   child: ElevatedButton(
                     onPressed: () {
-                      // _addToDoItem(_todoController.text);
                       _showAddTodoModal();
                     },
                     style: ElevatedButton.styleFrom(
@@ -128,6 +93,21 @@ class _HomeState extends State<Home> {
           )
         ],
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        onTap: (index) {
+          setState(() {
+            myIndex = index;
+          });
+        },
+        currentIndex: myIndex,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "All"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.today_rounded), label: "Today"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.calendar_month_rounded), label: "Upcoming"),
+        ],
+      ),
     );
   }
 
@@ -143,18 +123,16 @@ class _HomeState extends State<Home> {
     });
   }
 
-  void _addToDoItem(String toDo) {
-    // setState(
-    //   () {
-    //     todoList.add(
-    //       ToDo(
-    //         id: DateTime.now().microsecondsSinceEpoch.toString(),
-    //         todoText: toDo,
-    //       ),
-    //     );
-    //   },
-    // );
-    // _todoController.clear();
+  void _addToDoItem(String toDo, DateTime selectedDateTime) {
+    setState(() {
+      todoList.add(
+        ToDo(
+          id: DateTime.now().microsecondsSinceEpoch.toString(),
+          todoText: toDo,
+          dateTime: selectedDateTime,
+        ),
+      );
+    });
   }
 
   void _runFilter(String enteredKeyword) {
@@ -174,16 +152,27 @@ class _HomeState extends State<Home> {
     });
   }
 
+  bool isToday(DateTime dateTime) {
+    final now = DateTime.now();
+    return dateTime.year == now.year &&
+        dateTime.month == now.month &&
+        dateTime.day == now.day;
+  }
+
+  bool isUpcoming(DateTime dateTime) {
+    final now = DateTime.now();
+    return dateTime.isAfter(now);
+  }
+
   void _showAddTodoModal() async {
-    DateTime? selectedDate = DateTime.now();
-    TimeOfDay? selectedTime = TimeOfDay.now();
+    selectedDate = DateTime.now();
+    selectedTime = TimeOfDay.now();
 
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
         return Container(
-          height: MediaQuery.of(context).size.height *
-              0.6, // Increased height to accommodate date and time pickers
+          height: MediaQuery.of(context).size.height * 0.6,
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
@@ -209,64 +198,56 @@ class _HomeState extends State<Home> {
                       setState(() {
                         selectedDate = date;
                       });
-                      print(selectedDate);
                     },
                   ),
                   const SizedBox(width: 8),
                   MyTime(
                     onTimeSelected: (pickedTime) {
-                      // Handle the selected time here
-                      print("Selected Time: ${pickedTime.format(context)}");
+                      setState(() {
+                        selectedTime = pickedTime;
+                      });
                     },
                   ),
-                  // MyTime(),
-                  // Time Picker
-                  // ElevatedButton(
-                  //   onPressed: () async {
-                  //     TimeOfDay? pickedTime = await showTimePicker(
-                  //       context: context,
-                  //       initialTime: TimeOfDay.now(),
-                  //     );
-
-                  //     if (pickedTime != null && pickedTime != selectedTime) {
-                  //       setState(() {
-                  //         selectedTime = pickedTime;
-                  //       });
-                  //     }
-                  //   },
-                  //   child: const Row(
-                  //     children: [
-                  //       Icon(Icons.access_alarm),
-                  //       SizedBox(
-                  //           width:
-                  //               8), // Add some spacing between the icon and text
-                  //       Text("Pick Time"),
-                  //     ],
-                  //   ),
-                  // ),
                 ],
               ),
               const SizedBox(height: 40),
               ElevatedButton(
                 onPressed: () {
-                  // Access selectedDate and selectedTime for your logic
-                  // selectedDate is a DateTime and selectedTime is a TimeOfDay
-                  // Combine them to get the complete date and time.
+                  if (_validateInputs()) {
+                    DateTime selectedDateTime = DateTime(
+                      selectedDate!.year,
+                      selectedDate!.month,
+                      selectedDate!.day,
+                      selectedTime!.hour,
+                      selectedTime!.minute,
+                    );
 
-                  // Example:
-                  // DateTime selectedDateTime = DateTime(
-                  //   selectedDate.year,
-                  //   selectedDate.month,
-                  //   selectedDate.day,
-                  //   selectedTime.hour,
-                  //   selectedTime.minute,
-                  // );
+                    _addToDoItem(_todoController.text, selectedDateTime);
 
-                  // Add your logic to handle the addition of ToDo
-                  // _addToDoItem(_todoController.text, selectedDateTime);
+                    // Clear the content of the TextField
+                    _todoController.clear();
 
-                  // Close the modal
-                  Navigator.pop(context);
+                    Navigator.pop(context);
+                  } else {
+                    // Show an AlertDialog for error message
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Error'),
+                          content: const Text('Please fill in all fields.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: const Text('OK'),
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: tdBlue,
@@ -283,63 +264,66 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget searchBox() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: TextField(
-        onChanged: (value) => _runFilter(value),
-        decoration: const InputDecoration(
-          contentPadding: EdgeInsets.all(10),
-          prefixIcon: Icon(
-            Icons.search,
-            color: tdBlack,
-            size: 20,
-          ),
-          prefixIconConstraints: BoxConstraints(maxHeight: 20, minWidth: 25),
-          border: InputBorder.none,
-          hintText: 'Search',
-          hintStyle: TextStyle(color: tdGrey),
-        ),
-      ),
-    );
+  bool _validateInputs() {
+    return _todoController.text.isNotEmpty &&
+        selectedDate != null &&
+        selectedTime != null;
   }
-}
 
-class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const MyAppBar({Key? key}) : super(key: key);
-
-  @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-
-  @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      backgroundColor: tdBGColor,
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Icon(
-            Icons.menu,
-            color: tdBlack,
-            size: 30,
-          ),
-          // ignore: sized_box_for_whitespace
-          Container(
-            height: 40,
-            width: 40,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: const Image(
-                image: AssetImage('images/profile.jpg'),
+  List<Widget> _buildTaskColumn(
+      String title, bool Function(ToDo) filterCondition, String noTaskMessage) {
+    return [
+      if (_foundToDo.isNotEmpty && _foundToDo.any(filterCondition)) ...[
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 50, bottom: 20),
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
+            for (ToDo todo in _foundToDo.reversed)
+              if (filterCondition(todo))
+                ToDoItem(
+                  todo: todo,
+                  onToDoChanged: _handleToDoChange,
+                  onDeleteItem: _deleteToDoItem,
+                ),
+          ],
+        )
+      ] else
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 50, bottom: 20),
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
+            Center(
+              child: Container(
+                margin: const EdgeInsets.only(top: 20, bottom: 20),
+                child: Text(
+                  noTaskMessage,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w300,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+    ];
   }
 }

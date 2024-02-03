@@ -23,6 +23,28 @@ class ToDoItem extends StatelessWidget {
       child: ListTile(
         onTap: () {
           onToDoChanged(todo);
+
+          if (todo.isDone) {
+            // Hiển thị AlertDialog khi todo hoàn thành
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: const Text('Congratulations!'),
+                  content: Text("You've completed: ${todo.todoText}"),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        onDeleteItem(todo.id); // Đóng AlertDialog
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                );
+              },
+            );
+          }
         },
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
