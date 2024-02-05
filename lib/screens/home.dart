@@ -4,9 +4,14 @@ import 'package:todo_app/constants/colors.dart';
 import 'package:todo_app/models/todo.dart';
 import 'package:todo_app/widgets/todo_item.dart';
 import 'package:todo_app/widgets/todo_date.dart';
+import 'package:todo_app/widgets/todo_noti.dart';
 import 'package:todo_app/widgets/todo_search.dart';
 import 'package:todo_app/widgets/todo_time.dart';
 import 'package:todo_app/widgets/todo_appBar.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -29,6 +34,8 @@ class _HomeState extends State<Home> {
   void initState() {
     _foundToDo = todoList;
     super.initState();
+    Noti.initialize(flutterLocalNotificationsPlugin);
+    Noti.createNotificationChannel(flutterLocalNotificationsPlugin);
   }
 
   @override
@@ -90,7 +97,7 @@ class _HomeState extends State<Home> {
                 )
               ],
             ),
-          )
+          ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -161,7 +168,10 @@ class _HomeState extends State<Home> {
 
   bool isUpcoming(DateTime dateTime) {
     final now = DateTime.now();
-    return dateTime.isAfter(now);
+    return dateTime.year > now.year ||
+        (dateTime.year == now.year &&
+            (dateTime.month > now.month ||
+                (dateTime.month == now.month && dateTime.day > now.day)));
   }
 
   void _showAddTodoModal() async {
@@ -222,6 +232,14 @@ class _HomeState extends State<Home> {
                       selectedTime!.minute,
                     );
 
+                    Noti.scheduleNotification(
+                      id: 1,
+                      title: "Scheduled Notification",
+                      body: "This notification is scheduled.",
+                      scheduledDate: selectedDateTime,
+                      fln: flutterLocalNotificationsPlugin,
+                    );
+
                     _addToDoItem(_todoController.text, selectedDateTime);
 
                     // Clear the content of the TextField
@@ -272,8 +290,10 @@ class _HomeState extends State<Home> {
 
   List<Widget> _buildTaskColumn(
       String title, bool Function(ToDo) filterCondition, String noTaskMessage) {
+    List<ToDo> filteredTasks = _foundToDo.where(filterCondition).toList();
+
     return [
-      if (_foundToDo.isNotEmpty && _foundToDo.any(filterCondition)) ...[
+      if (filteredTasks.isNotEmpty) ...[
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -287,13 +307,12 @@ class _HomeState extends State<Home> {
                 ),
               ),
             ),
-            for (ToDo todo in _foundToDo.reversed)
-              if (filterCondition(todo))
-                ToDoItem(
-                  todo: todo,
-                  onToDoChanged: _handleToDoChange,
-                  onDeleteItem: _deleteToDoItem,
-                ),
+            for (ToDo todo in filteredTasks.reversed)
+              ToDoItem(
+                todo: todo,
+                onToDoChanged: _handleToDoChange,
+                onDeleteItem: _deleteToDoItem,
+              ),
           ],
         )
       ] else
