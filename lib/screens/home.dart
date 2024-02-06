@@ -51,6 +51,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 226, 224, 220),
+      // backgroundColor: const Color.fromARGB(255, 226, 224, 220),
       appBar: const MyAppBar(),
       body: Stack(
         children: [
@@ -264,7 +265,7 @@ class _HomeState extends State<Home> {
                     Noti.scheduleNotification(
                       id: 1,
                       title: "Scheduled Notification",
-                      body: "This notification is scheduled.",
+                      body: _todoController.text,
                       scheduledDate: selectedDateTime,
                       fln: flutterLocalNotificationsPlugin,
                     );

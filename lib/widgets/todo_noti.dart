@@ -1,12 +1,12 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
-import 'package:timezone/data/latest.dart' as tz;
 
 class Noti {
   static Future<void> initialize(
       FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
-    var androidInitialize = AndroidInitializationSettings('mipmap/ic_launcher');
-    var iOSInitialize = IOSInitializationSettings();
+    var androidInitialize =
+        const AndroidInitializationSettings('mipmap/ic_launcher');
+    var iOSInitialize = const IOSInitializationSettings();
     var initializationsSettings = InitializationSettings(
       android: androidInitialize,
       iOS: iOSInitialize,
@@ -35,11 +35,14 @@ class Noti {
     required DateTime scheduledDate,
     required FlutterLocalNotificationsPlugin fln,
   }) async {
+    DateTime notificationDateTime =
+        scheduledDate.subtract(const Duration(minutes: 10));
+
     await fln.zonedSchedule(
       id,
       title,
       body,
-      tz.TZDateTime.from(scheduledDate, tz.local),
+      tz.TZDateTime.from(notificationDateTime, tz.local),
       const NotificationDetails(
         android: AndroidNotificationDetails(
           'you_can_name_it_whatever1',
