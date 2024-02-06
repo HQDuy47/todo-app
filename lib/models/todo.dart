@@ -1,48 +1,53 @@
 class ToDo {
-  String? id;
-  String? todoText;
-  DateTime? dateTime;
+  final String id;
+  final String? todoText;
+  final DateTime? dateTime;
   bool isDone;
 
   ToDo({
     required this.id,
-    required this.todoText,
-    required this.dateTime,
+    this.todoText,
+    this.dateTime,
     this.isDone = false,
   });
 
+  // Phương thức tạo danh sách các ToDo mẫu
   static List<ToDo> todoList() {
     return [
       ToDo(
-          id: '01',
-          todoText: 'Morning Excercise',
-          dateTime: DateTime(2024, 2, 1, 8, 0),
-          isDone: false),
+        id: '1',
+        todoText: 'Task 1',
+        dateTime: DateTime.now(),
+        isDone: false,
+      ),
       ToDo(
-          id: '02',
-          todoText: 'Buy Groceries',
-          dateTime: DateTime(2024, 2, 1, 12, 0),
-          isDone: true),
-      ToDo(
-          id: '03',
-          todoText: 'Check Emails',
-          dateTime: DateTime(2024, 2, 1, 15, 30),
-          isDone: true),
-      ToDo(
-          id: '04',
-          todoText: 'Team Meeting',
-          dateTime: DateTime(2024, 2, 1, 10, 0),
-          isDone: false),
-      ToDo(
-          id: '05',
-          todoText: 'Work on mobile apps for 2 hour',
-          dateTime: DateTime(2024, 2, 1, 13, 0),
-          isDone: true),
-      ToDo(
-          id: '06',
-          todoText: 'Dinner with Jenny',
-          dateTime: DateTime(2024, 2, 1, 19, 0),
-          isDone: false),
+        id: '2',
+        todoText: 'Task 2',
+        dateTime: DateTime.now(),
+        isDone: false,
+      ),
+      // Thêm các ToDo mẫu khác nếu cần
     ];
+  }
+
+  // Phương thức chuyển đổi từ dữ liệu JSON thành đối tượng ToDo
+  factory ToDo.fromJson(Map<String, dynamic> json) {
+    return ToDo(
+      id: json['id'],
+      todoText: json['todoText'],
+      dateTime:
+          json['dateTime'] != null ? DateTime.parse(json['dateTime']) : null,
+      isDone: json['isDone'] ?? false,
+    );
+  }
+
+  // Phương thức chuyển đổi từ đối tượng ToDo thành dữ liệu JSON
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'todoText': todoText,
+      'dateTime': dateTime?.toIso8601String(),
+      'isDone': isDone,
+    };
   }
 }

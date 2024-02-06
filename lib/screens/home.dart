@@ -1,4 +1,3 @@
-// ignore_for_file: avoid_unnecessary_containers
 import 'package:flutter/material.dart';
 import 'package:todo_app/constants/colors.dart';
 import 'package:todo_app/models/todo.dart';
@@ -9,6 +8,8 @@ import 'package:todo_app/widgets/todo_search.dart';
 import 'package:todo_app/widgets/todo_time.dart';
 import 'package:todo_app/widgets/todo_appBar.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -21,7 +22,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final todoList = ToDo.todoList();
+  List<ToDo> todoList = [];
   List<ToDo> _foundToDo = [];
   final _todoController = TextEditingController();
 
@@ -32,16 +33,24 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    _foundToDo = todoList;
+    _loadToDoList();
     super.initState();
     Noti.initialize(flutterLocalNotificationsPlugin);
     Noti.createNotificationChannel(flutterLocalNotificationsPlugin);
   }
 
+  void _loadToDoList() async {
+    List<ToDo> storedToDoList = await getToDoListFromStorage();
+    setState(() {
+      todoList = storedToDoList;
+      _foundToDo = storedToDoList;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: tdBGColor,
+      backgroundColor: const Color.fromARGB(255, 226, 224, 220),
       appBar: const MyAppBar(),
       body: Stack(
         children: [
@@ -121,12 +130,14 @@ class _HomeState extends State<Home> {
   void _handleToDoChange(ToDo todo) {
     setState(() {
       todo.isDone = !todo.isDone;
+      saveToDoListToStorage(todoList);
     });
   }
 
   void _deleteToDoItem(String id) {
     setState(() {
       todoList.removeWhere((item) => item.id == id);
+      saveToDoListToStorage(todoList);
     });
   }
 
@@ -139,6 +150,7 @@ class _HomeState extends State<Home> {
           dateTime: selectedDateTime,
         ),
       );
+      saveToDoListToStorage(todoList);
     });
   }
 
@@ -172,6 +184,23 @@ class _HomeState extends State<Home> {
         (dateTime.year == now.year &&
             (dateTime.month > now.month ||
                 (dateTime.month == now.month && dateTime.day > now.day)));
+  }
+
+  Future<void> saveToDoListToStorage(List<ToDo> list) async {
+    final prefs = await SharedPreferences.getInstance();
+    final encodedData = list.map((todo) => todo.toJson()).toList();
+    await prefs.setString('todo_list', json.encode(encodedData));
+  }
+
+  Future<List<ToDo>> getToDoListFromStorage() async {
+    final prefs = await SharedPreferences.getInstance();
+    final todoData = prefs.getString('todo_list');
+    if (todoData != null) {
+      final decodedData = json.decode(todoData) as List<dynamic>;
+      return decodedData.map((todoJson) => ToDo.fromJson(todoJson)).toList();
+    } else {
+      return [];
+    }
   }
 
   void _showAddTodoModal() async {
