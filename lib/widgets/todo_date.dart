@@ -32,14 +32,24 @@ class _MyDateState extends State<MyDate> {
           widget.onDateSelected(pickedDate);
         }
       },
+      style: ElevatedButton.styleFrom(
+        minimumSize: const Size(180, 50),
+      ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.calendar_today),
+          const Icon(
+            Icons.calendar_today,
+            color: Color.fromARGB(255, 95, 95, 95),
+          ),
           const SizedBox(width: 8),
           Text(
             _dateController.text.isNotEmpty
                 ? _dateController.text
                 : "Pick Date",
+            style: const TextStyle(
+              color: Color.fromARGB(255, 95, 95, 95),
+            ),
           ),
         ],
       ),

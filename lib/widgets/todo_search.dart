@@ -1,7 +1,6 @@
 // search_widget.dart
 
 import 'package:flutter/material.dart';
-import 'package:todo_app/constants/colors.dart';
 
 class SearchBox extends StatelessWidget {
   final Function(String) onSearchChanged;
@@ -15,20 +14,33 @@ class SearchBox extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.5),
+            spreadRadius: 0.5,
+            blurRadius: 1,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: TextField(
         onChanged: onSearchChanged,
+        autocorrect: false,
+        enableSuggestions: false,
+        style: const TextStyle(
+          decoration: TextDecoration.none,
+        ),
         decoration: const InputDecoration(
-          contentPadding: EdgeInsets.all(10),
+          contentPadding: EdgeInsets.all(12),
           prefixIcon: Icon(
             Icons.search,
-            color: tdBlack,
+            color: Colors.black,
             size: 20,
           ),
           prefixIconConstraints: BoxConstraints(maxHeight: 20, minWidth: 25),
           border: InputBorder.none,
           hintText: 'Search',
-          hintStyle: TextStyle(color: tdGrey),
+          hintStyle: TextStyle(color: Colors.grey),
         ),
       ),
     );

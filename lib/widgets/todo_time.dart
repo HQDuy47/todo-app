@@ -10,18 +10,18 @@ class MyTime extends StatefulWidget {
 }
 
 class _MyTimeState extends State<MyTime> {
-  TimeOfDay? _timeOfDay; // Declare _timeOfDay as nullable
+  TimeOfDay? _timeOfDay;
 
   @override
   void initState() {
     super.initState();
-    _timeOfDay = null; // Initialize as null
+    _timeOfDay = null;
   }
 
   void _showTimePicker() async {
     TimeOfDay? pickedTime = await showTimePicker(
       context: context,
-      initialTime: _timeOfDay ?? TimeOfDay.now(), // Use current time if null
+      initialTime: _timeOfDay ?? TimeOfDay.now(),
     );
 
     if (pickedTime != null) {
@@ -36,12 +36,22 @@ class _MyTimeState extends State<MyTime> {
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: _showTimePicker,
+      style: ElevatedButton.styleFrom(
+        minimumSize: const Size(180, 50),
+      ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.access_time),
+          const Icon(
+            Icons.access_time,
+            color: Color.fromARGB(255, 95, 95, 95),
+          ),
           const SizedBox(width: 8),
           Text(
             _timeOfDay != null ? _timeOfDay!.format(context) : "Pick Time",
+            style: const TextStyle(
+              color: Color.fromARGB(255, 95, 95, 95),
+            ),
           ),
         ],
       ),

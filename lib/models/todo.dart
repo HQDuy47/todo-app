@@ -11,7 +11,6 @@ class ToDo {
     this.isDone = false,
   });
 
-  // Phương thức tạo danh sách các ToDo mẫu
   static List<ToDo> todoList() {
     return [
       ToDo(
@@ -26,11 +25,9 @@ class ToDo {
         dateTime: DateTime.now(),
         isDone: false,
       ),
-      // Thêm các ToDo mẫu khác nếu cần
     ];
   }
 
-  // Phương thức chuyển đổi từ dữ liệu JSON thành đối tượng ToDo
   factory ToDo.fromJson(Map<String, dynamic> json) {
     return ToDo(
       id: json['id'],
@@ -41,7 +38,6 @@ class ToDo {
     );
   }
 
-  // Phương thức chuyển đổi từ đối tượng ToDo thành dữ liệu JSON
   Map<String, dynamic> toJson() {
     return {
       'id': id,

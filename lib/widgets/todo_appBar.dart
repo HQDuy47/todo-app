@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:todo_app/constants/colors.dart';
 
 class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   const MyAppBar({Key? key}) : super(key: key);
@@ -10,13 +9,13 @@ class MyAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: tdBGColor,
+      backgroundColor: Color.fromARGB(255, 255, 252, 251),
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           const Icon(
             Icons.menu,
-            color: tdBlack,
+            color: Colors.black,
             size: 30,
           ),
           // ignore: sized_box_for_whitespace

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:todo_app/constants/colors.dart';
 import 'package:todo_app/models/todo.dart';
 import 'package:todo_app/widgets/todo_item.dart';
 import 'package:todo_app/widgets/todo_date.dart';
@@ -50,8 +49,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 226, 224, 220),
-      // backgroundColor: const Color.fromARGB(255, 226, 224, 220),
+      backgroundColor: const Color.fromARGB(255, 255, 253, 252),
       appBar: const MyAppBar(),
       body: Stack(
         children: [
@@ -92,7 +90,7 @@ class _HomeState extends State<Home> {
                       _showAddTodoModal();
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: tdBlue,
+                      backgroundColor: const Color.fromARGB(220, 255, 64, 71),
                       foregroundColor: Colors.white,
                       minimumSize: const Size(60, 60),
                       elevation: 10,
@@ -100,7 +98,7 @@ class _HomeState extends State<Home> {
                     child: const Text(
                       "+",
                       style: TextStyle(
-                        fontSize: 40,
+                        fontSize: 28,
                       ),
                     ),
                   ),
@@ -116,7 +114,16 @@ class _HomeState extends State<Home> {
             myIndex = index;
           });
         },
+        selectedLabelStyle: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.bold,
+        ),
+        unselectedLabelStyle: const TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.bold,
+        ),
         currentIndex: myIndex,
+        selectedItemColor: const Color.fromARGB(220, 255, 64, 71),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "All"),
           BottomNavigationBarItem(
@@ -208,104 +215,139 @@ class _HomeState extends State<Home> {
     selectedDate = DateTime.now();
     selectedTime = TimeOfDay.now();
 
+    // Tạo một FocusNode
+    FocusNode focusNode = FocusNode();
+
     showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.6,
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              const Text(
-                "Add Todo",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: _todoController,
-                decoration: const InputDecoration(
-                  hintText: "Enter your ToDo",
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  MyDate(
-                    onDateSelected: (date) {
-                      setState(() {
-                        selectedDate = date;
-                      });
-                    },
+        return GestureDetector(
+          onTap: () {
+            FocusScope.of(context).requestFocus(focusNode);
+          },
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.6,
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+            child: Column(
+              children: [
+                TextField(
+                  controller: _todoController,
+                  focusNode: focusNode,
+                  autofocus: true,
+                  decoration: const InputDecoration(
+                    hintText: "Enter your ToDo...",
+                    border: InputBorder.none,
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.transparent,
+                      ),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.transparent,
+                      ),
+                    ),
                   ),
-                  const SizedBox(width: 8),
-                  MyTime(
-                    onTimeSelected: (pickedTime) {
-                      setState(() {
-                        selectedTime = pickedTime;
-                      });
-                    },
+                  autocorrect: false,
+                  enableSuggestions: false,
+                  style: const TextStyle(
+                    decoration: TextDecoration.none,
                   ),
-                ],
-              ),
-              const SizedBox(height: 40),
-              ElevatedButton(
-                onPressed: () {
-                  if (_validateInputs()) {
-                    DateTime selectedDateTime = DateTime(
-                      selectedDate!.year,
-                      selectedDate!.month,
-                      selectedDate!.day,
-                      selectedTime!.hour,
-                      selectedTime!.minute,
-                    );
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: MyDate(
+                        onDateSelected: (date) {
+                          setState(() {
+                            selectedDate = date;
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: MyTime(
+                        onTimeSelected: (pickedTime) {
+                          setState(() {
+                            selectedTime = pickedTime;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    if (_validateInputs()) {
+                      DateTime selectedDateTime = DateTime(
+                        selectedDate!.year,
+                        selectedDate!.month,
+                        selectedDate!.day,
+                        selectedTime!.hour,
+                        selectedTime!.minute,
+                      );
 
-                    Noti.scheduleNotification(
-                      id: 1,
-                      title: "Scheduled Notification",
-                      body: _todoController.text,
-                      scheduledDate: selectedDateTime,
-                      fln: flutterLocalNotificationsPlugin,
-                    );
+                      Noti.scheduleNotification(
+                        id: 1,
+                        title: "Scheduled Notification",
+                        body: _todoController.text,
+                        scheduledDate: selectedDateTime,
+                        fln: flutterLocalNotificationsPlugin,
+                      );
 
-                    _addToDoItem(_todoController.text, selectedDateTime);
+                      _addToDoItem(_todoController.text, selectedDateTime);
 
-                    // Clear the content of the TextField
-                    _todoController.clear();
+                      _todoController.clear();
 
-                    Navigator.pop(context);
-                  } else {
-                    // Show an AlertDialog for error message
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Error'),
-                          content: const Text('Please fill in all fields.'),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: const Text('OK'),
+                      Navigator.pop(context);
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text(
+                              'Error',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ],
-                        );
-                      },
-                    );
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: tdBlue,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(60, 60),
-                  elevation: 10,
+                            content: const Text(
+                              'Please fill in all fields.',
+                              style: TextStyle(
+                                fontSize: 16,
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: const Text(
+                                  'OK',
+                                  style: TextStyle(
+                                    color: Color.fromARGB(220, 255, 64, 71),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(220, 255, 64, 71),
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 50),
+                    elevation: 10,
+                  ),
+                  child: const Text("Add ToDo"),
                 ),
-                child: const Text("Add ToDo"),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
