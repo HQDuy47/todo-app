@@ -50,3 +50,6 @@ To install the app, you need to have Flutter development environment set up on y
 ## Demo
 
 https://www.youtube.com/watch?v=ngh3U_LzLqY
+
+
+@Hồ Quốc Duy - 20127145
