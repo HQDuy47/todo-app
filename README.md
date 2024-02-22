@@ -1,16 +1,43 @@
-# todo_app
+# Flutter TODO App
 
-A new Flutter project.
+This is a simple Flutter application to manage TODO list items. The app allows users to create new TODO items, select specific time for the TODO, view TODO list based on different categories, search within the TODO list, receive notifications before the TODO deadline, and mark a TODO as completed.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+To install the app, you need to have Flutter development environment set up on your machine. Then, you can follow these steps:
 
-A few resources to get you started if this is your first Flutter project:
+1. Clone this repository to your machine:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+ ```bash
+   git clone https://github.com/your-username/flutter-todo-app.git
+ ```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+2. Navigate to the project directory:
+
+ ```bash
+   cd flutter-todo-app
+ ```
+
+3. Install the necessary dependencies:
+
+ ```bash
+   flutter pub get
+ ```
+
+4. Run the app on a device or emulator:
+   
+ ```bash
+   flutter run
+ ```
+
+## Features
+
+-  Create new TODO: Users can create a new TODO item, including selecting a specific time for the TODO.
+-  View TODO list: Users can view the TODO list based on different categories such as All TODOs, Today's TODOs, Upcoming TODOs.
+-  Search TODOs: Users can search within the TODO list by title or content of the TODO.
+-  Receive notifications: Users will receive notifications 10 minutes before the deadline of a TODO.
+-  Mark TODO as completed: Users can mark a TODO as completed and remove it from the TODO list.
+
+## Dependencies
+
+- flutter_local_notifications: Used for sending notifications to users before the deadline of a TODO.
