@@ -41,3 +41,12 @@ To install the app, you need to have Flutter development environment set up on y
 ## Dependencies
 
 - flutter_local_notifications: Used for sending notifications to users before the deadline of a TODO.
+- flutter_local_notifications: ^9.1.4
+- flutter_datetime_picker: ^1.5.1
+- timezone: ^0.8.0
+- shared_preferences: ^2.2.2
+- hive: ^2.2.3
+
+## Demo
+
+https://www.youtube.com/watch?v=ngh3U_LzLqY
